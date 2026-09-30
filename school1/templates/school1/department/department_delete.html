@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Department</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 32px; background: #f4f6f8; color: #1f2933; }
+        .page { max-width: 520px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); }
+        .actions { display: flex; gap: 12px; margin-top: 20px; }
+        button, .link { padding: 10px 16px; border: 0; border-radius: 6px; text-decoration: none; cursor: pointer; font-size: 14px; }
+        button { background: #b42318; color: #ffffff; }
+        .link { background: #d9e2ec; color: #102a43; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <h1>Delete Department</h1>
+        <p>Are you sure you want to delete <strong>{{ department.name }}</strong>?</p>
+        <form method="post">
+            {% csrf_token %}
+            <div class="actions">
+                <button type="submit">Delete</button>
+                <a class="link" href="{% url 'department_list' %}">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

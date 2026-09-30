@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>School Dashboard</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f8fbff 0%, #eef3ff 55%, #f6f2ff 100%);
+            color: #1e293b;
+        }
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 230px 1fr;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: rgba(255, 255, 255, 0.86);
+            border-right: 1px solid #e8edf5;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .brand {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .side-label {
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin: 14px 10px 6px;
+        }
+        .nav-link,
+        .logout-btn {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 11px 14px;
+            border-radius: 12px;
+            color: #4b5563;
+            border: 0;
+            background: transparent;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .nav-link.active,
+        .nav-link:hover,
+        .logout-btn:hover {
+            background: #e9f1ff;
+            color: #1d4ed8;
+        }
+        .exam-menu {
+            position: relative;
+        }
+        .exam-menu > .nav-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .exam-menu > .nav-link::after {
+            content: "\203A";
+            font-size: 18px;
+        }
+        .exam-submenu {
+            position: absolute;
+            z-index: 100;
+            left: calc(100% + 10px);
+            top: -12px;
+            width: 245px;
+            padding: 10px;
+            border: 1px solid #dbe6f5;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 18px 45px rgba(30, 64, 175, 0.18);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateX(-8px);
+            transition: 160ms ease;
+        }
+        .exam-menu:hover .exam-submenu,
+        .exam-menu:focus-within .exam-submenu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(0);
+        }
+        .exam-submenu::before {
+            content: "";
+            position: absolute;
+            right: 100%;
+            top: 0;
+            width: 14px;
+            height: 100%;
+        }
+        .exam-submenu-title {
+            padding: 7px 10px 9px;
+            color: #94a3b8;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+        }
+        .exam-submenu a {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 9px 10px;
+            border-radius: 10px;
+            color: #334155;
+            font-size: 13px;
+        }
+        .exam-submenu a:hover {
+            background: #eef4ff;
+            color: #1d4ed8;
+        }
+        .sidebar-banner {
+            margin-top: auto;
+            border-radius: 18px;
+            padding: 18px 16px;
+            background: linear-gradient(180deg, #29b6f6, #6d5dfc);
+            color: #fff;
+            min-height: 190px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .sidebar-banner strong {
+            display: block;
+            font-size: 20px;
+            line-height: 1.25;
+        }
+        .sidebar-banner a {
+            align-self: flex-start;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: #fff;
+            color: #6d5dfc;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .content {
+            padding: 20px;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+        .search {
+            width: 320px;
+            max-width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #dbe2ea;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.92);
+        }
+        .userbox {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #60a5fa, #a78bfa);
+            color: #fff;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+        }
+        .userbox small {
+            display: block;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 18px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 18px;
+            padding: 18px;
+            box-shadow: 0 14px 38px rgba(15, 23, 42, 0.08);
+        }
+        .stat-card {
+            grid-column: span 3;
+            min-height: 118px;
+        }
+        .stat-card:nth-child(1) { background: #dfeafe; }
+        .stat-card:nth-child(2) { background: #e9ddff; }
+        .stat-card:nth-child(3) { background: #dfeafe; }
+        .stat-card:nth-child(4) { background: #ddd6fe; }
+        .stat-top {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .stat-number {
+            font-size: 34px;
+            font-weight: 700;
+            margin: 14px 0 8px;
+        }
+        .muted {
+            color: #6b7280;
+            font-size: 14px;
+        }
+        .span-5 { grid-column: span 5; }
+        .span-4 { grid-column: span 4; }
+        .span-3 { grid-column: span 3; }
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+        .section-title h3 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .tiny {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .panel-tall {
+            min-height: 285px;
+        }
+        .students-panel {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .ring {
+            width: 182px;
+            height: 182px;
+            margin: 18px auto;
+            border-radius: 50%;
+            background: conic-gradient(#bfe9ff 0 var(--active-student-percent), #c4b5fd var(--active-student-percent) 100%);
+            display: grid;
+            place-items: center;
+            position: relative;
+        }
+        .ring::after {
+            content: "";
+            width: 114px;
+            height: 114px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: inset 0 0 0 1px #eef2f7;
+        }
+        .ring-center {
+            position: absolute;
+            z-index: 1;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+        }
+        .ring-center span {
+            display: block;
+            color: #94a3b8;
+            font-size: 12px;
+            font-weight: 400;
+        }
+        .students-stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        .students-stats strong {
+            display: block;
+            font-size: 28px;
+        }
+        .attendance-legend,
+        .chart-labels {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .dot-blue { background: #8ec5ff; }
+        .dot-purple { background: #a78bfa; }
+        .attendance-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 18px;
+            height: 195px;
+            margin-top: 20px;
+        }
+        .attendance-day {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            height: 100%;
+        }
+        .attendance-bars {
+            display: flex;
+            align-items: flex-end;
+            gap: 8px;
+            height: 160px;
+        }
+        .bar {
+            width: 18px;
+            border-radius: 12px 12px 0 0;
+        }
+        .bar-present { background: #8ec5ff; }
+        .bar-absent { background: #a78bfa; }
+        .calendar-card {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+        .calendar-cell {
+            padding: 10px 0;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-size: 13px;
+            color: #475569;
+        }
+        .calendar-cell.day-label {
+            background: transparent;
+            padding: 0;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+        .calendar-cell.today {
+            background: #dbeafe;
+            color: #1d4ed8;
+            font-weight: 700;
+        }
+        .calendar-cell.empty {
+            background: transparent;
+        }
+        .agenda-item,
+        .list-item,
+        .activity-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #edf2f7;
+        }
+        .agenda-item:last-child,
+        .list-item:last-child,
+        .activity-item:last-child {
+            border-bottom: 0;
+        }
+        .earnings-card {
+            position: relative;
+        }
+        .chart-area {
+            height: 210px;
+            margin-top: 18px;
+            background: linear-gradient(180deg, rgba(219, 234, 254, 0.7), rgba(255, 255, 255, 0));
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .chart-area svg {
+            width: 100%;
+            height: 100%;
+        }
+        .mini-stack {
+            display: grid;
+            gap: 18px;
+        }
+        .mini-card {
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .pill {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        .notice-pill {
+            background: #eef2ff;
+            color: #6366f1;
+        }
+        .bottom-columns {
+            grid-column: span 12;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+        }
+        .list-item strong,
+        .activity-item strong,
+        .agenda-item strong {
+            display: block;
+            margin-bottom: 4px;
+        }
+        @media (max-width: 1180px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .stat-card,
+            .span-5,
+            .span-4,
+            .span-3 {
+                grid-column: span 12;
+            }
+            .bottom-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="brand">SchoolHub</div>
+            <div class="side-label">Menu</div>
+            <a class="nav-link active" href="{% url 'dashboard' %}">Dashboard</a>
+            <a class="nav-link" href="{% url 'teacher_list' %}">Teachers</a>
+            <a class="nav-link" href="{% url 'student_list' %}">Students</a>
+            <a class="nav-link" href="{% url 'Attendance_list' %}">Attendance</a>
+            <a class="nav-link" href="{% url 'finance_list' %}">Finance</a>
+            <a class="nav-link" href="{% url 'notice_list' %}">Notice</a>
+            <a class="nav-link" href="{% url 'department_list' %}">Departments</a>
+            <a class="nav-link" href="{% url 'course_list' %}">Courses</a>
+            <a class="nav-link" href="{% url 'classroom_list' %}">Classrooms</a>
+            <div class="exam-menu">
+                <a class="nav-link" href="{% url 'exam_list' %}">Exams</a>
+                <div class="exam-submenu" aria-label="Exam categories">
+                    <div class="exam-submenu-title">Exam categories</div>
+                    <a href="{% url 'subjects_assignment' %}">Subjects Assignment</a>
+                    <a href="{% url 'class_teachers' %}">Class Teachers</a>
+                    <a href="{% url 'exam_grades' %}">Grades</a>
+                    <a href="{% url 'exam_comments' %}">Comments</a>
+                    <a href="{% url 'exam_list' %}">Exams</a>
+                    <a href="{% url 'exam_marks' %}">Marks</a>
+                    <a href="{% url 'report_cards' %}">Report Cards</a>
+                    <a href="{% url 'exam_analysis' %}">Analysis</a>
+                </div>
+            </div>
+            <a class="nav-link" href="{% url 'employee_list' %}">Employees</a>
+            <a class="nav-link" href="{% url 'employee_payroll_list' %}">Employee Payroll</a>
+            <div class="side-label">Other</div>
+            <a class="nav-link" href="{% url 'student_create' %}">Add Student</a>
+            <a class="nav-link" href="{% url 'teacher_create' %}">Add Teacher</a>
+            <a class="nav-link" href="{% url 'employee_create' %}">Add Employee</a>
+            <a class="nav-link" href="{% url 'employee_payroll_create' %}">Add Payroll</a>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="logout-btn">Log out</button>
+            </form>
+            <div class="sidebar-banner">
+                <div>
+                    <div class="tiny" style="color:#d7fbff;">School productivity</div>
+                    <strong>Manage your campus records better every day</strong>
+                </div>
+                <a href="{% url 'student_list' %}">Open records</a>
+            </div>
+        </aside>
+
+        <main class="content">
+            <div class="topbar">
+                <input class="search" type="text" placeholder="Search">
+                <div class="userbox">
+                    <div>
+                        <strong>{{ request.user.username|default:"School Admin" }}</strong>
+                        <small>Administrator</small>
+                    </div>
+                    <div class="avatar">{{ request.user.username|default:"A"|slice:":1"|upper }}</div>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div class="card stat-card">
+                    <div class="stat-top">Students</div>
+                    <div class="stat-number">{{ student_count }}</div>
+                    <div class="muted">Registered students</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-top">Teachers</div>
+                    <div class="stat-number">{{ teacher_count }}</div>
+                    <div class="muted">Faculty members</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-top">Staff</div>
+                    <div class="stat-number">{{ employee_count }}</div>
+                    <div class="muted">Employee records</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-top">Notices</div>
+                    <div class="stat-number">{{ notice_count }}</div>
+                    <div class="muted">Published updates</div>
+                </div>
+                <section class="card span-4 panel-tall students-panel">
+                    <div class="section-title">
+                        <h3>Students</h3>
+                        <span class="muted">Overview</span>
+                    </div>
+                    <div class="ring" style="--active-student-percent: {{ active_student_percent }}%;">
+                        <div class="ring-center">{{ active_student_percent }}%<span>Active</span></div>
+                    </div>
+                    <div class="students-stats">
+                        <div><strong>{{ student_count }}</strong><div class="muted">Total</div></div>
+                        <div><strong>{{ department_count }}</strong><div class="muted">Departments</div></div>
+                    </div>
+                </section>
+
+                <section class="card span-5 panel-tall">
+                    <div class="section-title">
+                        <h3>Attendance</h3>
+                        <div class="attendance-legend">
+                            <span class="tiny"><span class="dot dot-blue"></span>Total Present</span>
+                            <span class="tiny"><span class="dot dot-purple"></span>Total Absent</span>
+                        </div>
+                    </div>
+                    <div class="attendance-chart">
+                        <div class="attendance-day">
+                            <div class="attendance-bars"><div class="bar bar-present" style="height: 62%;"></div><div class="bar bar-absent" style="height: 52%;"></div></div>
+                            <span class="tiny">Mon</span>
+                        </div>
+                        <div class="attendance-day">
+                            <div class="attendance-bars"><div class="bar bar-present" style="height: 78%;"></div><div class="bar bar-absent" style="height: 60%;"></div></div>
+                            <span class="tiny">Tue</span>
+                        </div>
+                        <div class="attendance-day">
+                            <div class="attendance-bars"><div class="bar bar-present" style="height: 70%;"></div><div class="bar bar-absent" style="height: 48%;"></div></div>
+                            <span class="tiny">Wed</span>
+                        </div>
+                        <div class="attendance-day">
+                            <div class="attendance-bars"><div class="bar bar-present" style="height: 85%;"></div><div class="bar bar-absent" style="height: 66%;"></div></div>
+                            <span class="tiny">Thu</span>
+                        </div>
+                        <div class="attendance-day">
+                            <div class="attendance-bars"><div class="bar bar-present" style="height: 72%;"></div><div class="bar bar-absent" style="height: 58%;"></div></div>
+                            <span class="tiny">Fri</span>
+                        </div>
+                    </div>
+                    <div class="chart-labels">
+                        <span class="pill">Present {{ present_count }}</span>
+                        <span class="pill" style="background:#ede9fe; color:#6d28d9;">Absent {{ absent_count }}</span>
+                        <span class="pill" style="background:#dbeafe; color:#1d4ed8;">Late {{ late_count }}</span>
+                    </div>
+                </section>
+
+                <section class="card span-3 panel-tall calendar-card">
+                    <div class="section-title">
+                        <h3>{{ calendar_month_year }}</h3>
+                        <span class="muted">Week view</span>
+                    </div>
+                    <div class="calendar-grid">
+                        {% for item in calendar_days %}
+                            <div class="calendar-cell day-label">{{ item.label }}</div>
+                        {% endfor %}
+                        {% for item in calendar_days %}
+                            <div class="calendar-cell {% if item.is_today %}today{% endif %} {% if item.is_empty %}empty{% endif %}">
+                                {% if not item.is_empty %}{{ item.day }}{% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="section-title" style="margin-top:6px;">
+                        <h3>Agenda</h3>
+                        <span class="muted">Today</span>
+                    </div>
+                    <div class="agenda-item"><strong>08:00 AM</strong><div class="muted">Morning assembly and announcements</div></div>
+                    <div class="agenda-item"><strong>10:00 AM</strong><div class="muted">Teacher lecture review</div></div>
+                    <div class="agenda-item"><strong>12:30 PM</strong><div class="muted">Department coordination meeting</div></div>
+                </section>
+
+                <section class="card span-5 panel-tall earnings-card">
+                    <div class="section-title">
+                        <h3>Finance Overview</h3>
+                        <span class="muted">Monthly</span>
+                    </div>
+                    <div class="chart-labels">
+                        <span class="tiny"><span class="dot dot-blue"></span>Paid</span>
+                        <span class="tiny"><span class="dot dot-purple"></span>Pending</span>
+                    </div>
+                    <div class="chart-area">
+                        <svg viewBox="0 0 500 220" preserveAspectRatio="none">
+                            <polyline fill="none" stroke="#8b5cf6" stroke-width="4" points="0,150 45,70 90,120 135,90 180,105 225,80 270,125 315,60 360,96 405,84 450,130 500,54"></polyline>
+                            <polyline fill="none" stroke="#93c5fd" stroke-width="4" points="0,116 45,104 90,76 135,98 180,78 225,90 270,68 315,112 360,74 405,93 450,64 500,84"></polyline>
+                        </svg>
+                    </div>
+                    <div class="students-stats" style="margin-top:16px;">
+                        <div><strong>{{ finance_paid_total|floatformat:0 }}</strong><div class="muted">Paid</div></div>
+                        <div><strong>{{ finance_pending_total|floatformat:0 }}</strong><div class="muted">Pending</div></div>
+                    </div>
+                </section>
+
+                <div class="span-3 mini-stack">
+                    <section class="card mini-card">
+                        <div class="muted">Attendance Records</div>
+                        <div class="stat-number">{{ attendance_count }}</div>
+                        <div class="muted">Present {{ present_count }} | Leave {{ leave_count }}</div>
+                    </section>
+                    <section class="card mini-card">
+                        <div class="muted">Student Records</div>
+                        <div class="stat-number">{{ student_count }}</div>
+                        <div class="muted">Current enrolled students</div>
+                    </section>
+                    <section class="card mini-card">
+                        <div class="muted">Exam Activities</div>
+                        <div class="stat-number">{{ exam_count }}</div>
+                        <div class="muted">Scheduled exam activities</div>
+                    </section>
+                </div>
+
+                <div class="bottom-columns">
+                    <section class="card panel-tall">
+                        <div class="section-title">
+                            <h3>Student Activity</h3>
+                            <a href="{% url 'student_list' %}" class="tiny">View all</a>
+                        </div>
+                        {% for student in student_activity %}
+                            <div class="activity-item">
+                                <strong>{{ student.name }}</strong>
+                                <div class="muted">{{ student.course }}{% if student.department %} | {{ student.department.name }}{% endif %}</div>
+                            </div>
+                        {% empty %}
+                            <p class="muted">No student activity yet.</p>
+                        {% endfor %}
+                    </section>
+
+                    <section class="card panel-tall">
+                        <div class="section-title">
+                            <h3>Notice Board</h3>
+                            <a href="{% url 'notice_list' %}" class="tiny">View all</a>
+                        </div>
+                        {% for notice in recent_notices %}
+                            <div class="list-item">
+                                <strong>{{ notice.title }}</strong>
+                                <div class="muted">{{ notice.message|truncatechars:58 }}</div>
+                                <div style="margin-top:6px;">
+                                    <span class="pill notice-pill">{{ notice.published_on }}</span>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <p class="muted">No notices published yet.</p>
+                        {% endfor %}
+                    </section>
+
+                    <section class="card panel-tall">
+                        <div class="section-title">
+                            <h3>Messages</h3>
+                            <span class="tiny">Faculty</span>
+                        </div>
+                        {% for teacher in message_teachers %}
+                            <div class="list-item">
+                                <strong>{{ teacher.FirstName }} {{ teacher.LastName }}</strong>
+                                <div class="muted">{{ teacher.Specialization|default:"Teacher" }}</div>
+                                <div class="tiny">{{ teacher.Email }}</div>
+                            </div>
+                        {% empty %}
+                            <p class="muted">No teacher messages yet.</p>
+                        {% endfor %}
+                    </section>
+                </div>
+
+                <section class="card span-4 panel-tall">
+                    <div class="section-title">
+                        <h3>Recent Teachers</h3>
+                        <a href="{% url 'teacher_list' %}" class="tiny">View all</a>
+                    </div>
+                    {% for teacher in recent_teachers %}
+                        <div class="list-item">
+                            <strong>{{ teacher.FirstName }} {{ teacher.LastName }}</strong>
+                            <div class="muted">{{ teacher.Specialization|default:"Faculty member" }}</div>
+                        </div>
+                    {% empty %}
+                        <p class="muted">No teachers added yet.</p>
+                    {% endfor %}
+                </section>
+
+                <section class="card span-4 panel-tall">
+                    <div class="section-title">
+                        <h3>Recent Departments</h3>
+                        <a href="{% url 'department_list' %}" class="tiny">View all</a>
+                    </div>
+                    {% for department in recent_departments %}
+                        <div class="list-item">
+                            <strong>{{ department.name }}</strong>
+                            <div class="muted">{{ department.code }}{% if department.head_of_department %} | {{ department.head_of_department }}{% endif %}</div>
+                        </div>
+                    {% empty %}
+                        <p class="muted">No departments added yet.</p>
+                    {% endfor %}
+                </section>
+
+                <section class="card span-4 panel-tall">
+                    <div class="section-title">
+                        <h3>Recent Activity</h3>
+                        <span class="tiny">Latest updates</span>
+                    </div>
+                    {% for item in recent_activity %}
+                        <div class="activity-item">
+                            <strong>{{ item.title }}</strong>
+                            <div class="muted">{{ item.detail }}</div>
+                            <div class="tiny">{{ item.meta }}</div>
+                        </div>
+                    {% empty %}
+                        <p class="muted">No activity recorded yet.</p>
+                    {% endfor %}
+                </section>
+
+                <section class="card span-4 panel-tall">
+                    <div class="section-title">
+                        <h3>Recent Courses</h3>
+                        <a href="{% url 'course_list' %}" class="tiny">View all</a>
+                    </div>
+                    {% for course in recent_courses %}
+                        <div class="list-item">
+                            <strong>{{ course.course_name }}</strong>
+                            <div class="muted">{{ course.course_code }} | {{ course.duration }}</div>
+                        </div>
+                    {% empty %}
+                        <p class="muted">No courses added yet.</p>
+                    {% endfor %}
+                </section>
+
+                <section class="card span-4 panel-tall">
+                    <div class="section-title">
+                        <h3>Recent Classrooms</h3>
+                        <a href="{% url 'classroom_list' %}" class="tiny">View all</a>
+                    </div>
+                    {% for classroom in recent_classrooms %}
+                        <div class="list-item">
+                            <strong>{{ classroom.class_name }} - {{ classroom.section }}</strong>
+                            <div class="muted">Room {{ classroom.room_number }}</div>
+                        </div>
+                    {% empty %}
+                        <p class="muted">No classrooms added yet.</p>
+                    {% endfor %}
+                </section>
+
+                <section class="card span-4 panel-tall">
+                    <div class="section-title">
+                        <h3>Recent Finance</h3>
+                        <a href="{% url 'finance_list' %}" class="tiny">View all</a>
+                    </div>
+                    {% for finance in recent_finances %}
+                        <div class="list-item">
+                            <strong>{{ finance.student.name }}</strong>
+                            <div class="muted">{{ finance.fee_type }} | {{ finance.amount }} | {{ finance.status }}</div>
+                        </div>
+                    {% empty %}
+                        <p class="muted">No finance records added yet.</p>
+                    {% endfor %}
+                </section>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>Delete Payroll</title></head><body><h1>Delete Payroll</h1><p>Delete payroll for <strong>{{ payroll.employee }}</strong>, {{ payroll.month }} {{ payroll.year }}?</p><form method="post">{% csrf_token %}<button type="submit">Delete</button> <a href="{% url 'employee_payroll_list' %}">Cancel</a></form></body></html>

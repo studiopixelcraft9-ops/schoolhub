@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Departments</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 32px; background: #f4f6f8; color: #1f2933; }
+        .page { max-width: 960px; margin: 0 auto; background: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08); }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .button { display: inline-block; padding: 10px 16px; background: #6d5dfc; color: #ffffff; text-decoration: none; border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #d9e2ec; text-align: left; vertical-align: top; }
+        .actions a { margin-right: 12px; color: #6d5dfc; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div>
+                <h1>Departments</h1>
+                <p>Create, update, and delete departments from one place.</p>
+            </div>
+            <a class="button" href="{% url 'department_create' %}">Add Department</a>
+        </div>
+        {% if departments %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Head of Department</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for department in departments %}
+                <tr>
+                    <td>{{ department.code }}</td>
+                    <td>{{ department.name }}</td>
+                    <td>{{ department.description|default:"-" }}</td>
+                    <td>{{ department.head_of_department|default:"-" }}</td>
+                    <td>{{ department.email|default:"-" }}</td>
+                    <td>{{ department.phone|default:"-" }}</td>
+                    <td>{{ department.status|default:"-" }}</td>
+                    <td class="actions">
+                        <a href="{% url 'department_update' department.pk %}">Edit</a>
+                        <button type="button" class="delete-trigger" data-delete-url="{% url 'department_delete' department.pk %}" data-delete-message="Are you sure you want to delete this record?">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p>No departments added yet.</p>
+        {% endif %}
+    </div>
+{% include "school1/includes/delete_modal.html" %}</body>
+</html>
